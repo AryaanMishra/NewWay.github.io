@@ -1,0 +1,15 @@
+{
+	"type": "FeatureCollection",
+	"features": [
+		{
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": [-0.09, 51.505]
+			},
+			"properties": {
+				"description": "Traffic congestion on M1"
+			}
+		}
+	]
+}
