@@ -1,1 +1,0 @@
-# NewWay.github.io
