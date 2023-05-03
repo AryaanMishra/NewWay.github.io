@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactive Traffic Map</title>
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <script src="leaflet/leaflet.js"></script>
+    <style>
+      #map {
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // Initialize map
+      var map = L.map('map').setView([37.7749, -122.4194], 12);
+
+      // Add tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+      }).addTo(map);
+
+      // Add GeoJSON layer
+      var trafficLayer = L.geoJSON().addTo(map);
+
+      // Load traffic data
+      fetch('traffic_data.geojson')
+        .then(response => response.json())
+        .then(data => {
+          trafficLayer.addData(data);
+        })
+        .catch(error => console.error(error));
+
+      // Add marker layer
+      var markerLayer = L.layerGroup().addTo(map);
+
+      // Handle map click events
+      map.on('click', function(event) {
+        // Remove existing markers
+        markerLayer.clearLayers();
+
+        // Add new marker
+        var marker = L.marker(event.latlng).addTo(markerLayer);
+
+        // Display report form
+        var reportForm = document.createElement('form');
+        reportForm.innerHTML = `
+          <h2>Report Traffic</h2>
+          <p>Location: ${event.latlng.lat.toFixed(4)}, ${event.latlng.lng.toFixed(4)}</p>
+          <label for="traffic_type">Traffic type:</label>
+          <select id="traffic_type" name="traffic_type">
+            <option value="congestion">Congestion</option>
+            <option value="accident">Accident</option>
+            <option value="roadwork">Road work</option>
+          </select>
+          <br>
+          <label for="description">Description:</label>
+          <textarea id="description" name="description"></textarea>
+          <br>
+          <button type="submit">Submit</button>
+        `;
+
+        // Handle form submission
+        reportForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+          var formData = new FormData(reportForm);
+          formData.append('latitude', event.latlng.lat.toFixed(4));
+          formData.append('longitude', event.latlng.lng.toFixed(4));
+
+          // TODO: Send form data to server
+
+          alert('Traffic reported successfully!');
+        });
+
+        // Add form to map
+        L.popup()
+          .setLatLng(event.latlng)
+          .setContent(reportForm)
+          .openOn(map);
+      });
+    </script>
+  </body>
+</html>
